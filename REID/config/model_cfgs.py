@@ -6,6 +6,8 @@ YOLO_MODEL_PATH = './models/yolov8s.onnx'
 YOLO_DEFAULT_LABEL = [0] # 0 is 'person'
 YOLO_MIN_SIZE = 0
 YOLO_TRACKER_TYPE = 'botsort.yaml' # "bytetrack.yaml"
+YOLO_CONF = 0.2
+YOLO_IOU = 0.4
 
 # setting of reid model
 EXTRACTOR_PERSON = './models/reid_person_0.737.onnx'
