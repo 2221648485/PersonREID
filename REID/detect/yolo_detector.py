@@ -28,6 +28,7 @@ class YoloDetect(object):
                iou=cfgs.YOLO_IOU):
         boxes, clses = [], []
         results = self.model.predict(img, conf=conf, iou=iou, classes=class_idx_list)
+        # 过滤无关信息
         if results[0].boxes.xyxy is not None:
             _boxes = results[0].boxes.xyxy.cpu().tolist()
             _clses = results[0].boxes.cls.int().cpu().tolist()
@@ -37,10 +38,12 @@ class YoloDetect(object):
                     clses.append(cls)
         return boxes, clses
 
+    # 追踪
     def track(self, frame, class_idx_list=cfgs.YOLO_LABELS, min_size=cfgs.YOLO_MIN_SIZE, conf=cfgs.YOLO_CONF,
               iou=cfgs.YOLO_IOU, persist=True, tracker=cfgs.YOLO_TRACKER_TYPE):
         boxes, track_ids, clses = [], [], []
         results = self.model.track(frame, persist=persist, tracker=tracker, conf=conf, iou=iou, classes=class_idx_list)
+        # 过滤
         if results[0].boxes.id is not None:
             _boxes = results[0].boxes.xyxy.cpu().tolist()
             _track_ids = results[0].boxes.id.int().cpu().tolist()
