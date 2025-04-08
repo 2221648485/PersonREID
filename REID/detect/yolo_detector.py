@@ -1,59 +1,50 @@
-from REID.logger.log import get_logger
-import REID.config.model_cfgs as cfgs
+import sys
+import os
+import numpy as np
+from collections import defaultdict
 from ultralytics import YOLO
+import REID.config.model_cfgs as cfgs
+from REID.logger.log import get_logger
 
-log = get_logger(__name__)
+log_info = get_logger(__name__)
+
+yolo_idx_names = cfgs.YOLO_LABELS
 
 
+# 自定义yolo类
 class YoloDetect(object):
     def __init__(self, model_path=cfgs.YOLO_MODEL_PATH):
-        # 验证模型路径是否为字符串
-        if not isinstance(model_path, str):
-            log.error("Model path must be a string.")
-            raise ValueError("Model path must be a string.")
-        try:
-            # 创建模型
-            self.model = YOLO(model_path)
-            self.model_track = YOLO(model_path)
-            log.info(f"{model_path} has already loaded")
-        except FileNotFoundError:
-            log.error(f"Model file not found at {model_path}.")
-            raise
-        except Exception as e:
-            log.error(f"An error occurred while loading the model: {e}")
-            raise
+        self._model = YOLO(model_path)
+        self._model_track = YOLO(model_path)
+        log_info.info('{} model load succeed!!!'.format(model_path))
 
-    # 使用YOLO模型进行探测, 并删去不符合的部分
-    def detect(self, img, class_idx_list=cfgs.YOLO_LABELS, min_size=cfgs.YOLO_MIN_SIZE, conf=cfgs.YOLO_CONF,
-               iou=cfgs.YOLO_IOU):
-        boxes, clses = [], []
-        results = self.model.predict(img, conf=conf, iou=iou, classes=class_idx_list)
-        # 过滤无关信息
+    def detect(self, img, class_idx_list=cfgs.YOLO_DEFAULT_LABEL, min_size=cfgs.YOLO_MIN_SIZE):
+        boxes, clss = [], []
+        results = self._model.predict(img, conf=0.2, iou=0.4, classes=class_idx_list)
         if results[0].boxes.xyxy is not None:
             _boxes = results[0].boxes.xyxy.cpu().tolist()
-            _clses = results[0].boxes.cls.int().cpu().tolist()
-            for box, cls in zip(_boxes, _clses):
-                if box[3] - box[1] > min_size and box[2] - box[0] > min_size:
-                    boxes.append(box)
-                    clses.append(cls)
-        return boxes, clses
+            _clss = results[0].boxes.cls.int().cpu().tolist()
+            for _box, _cls in zip(_boxes, _clss):
+                if _box[3] - _box[1] > min_size and _box[2] - _box[0] > min_size:
+                    boxes.append(_box)
+                    clss.append(_cls)
+        return boxes, clss
 
-    # 追踪
-    def track(self, frame, class_idx_list=cfgs.YOLO_LABELS, min_size=cfgs.YOLO_MIN_SIZE, conf=cfgs.YOLO_CONF,
-              iou=cfgs.YOLO_IOU, persist=True, tracker=cfgs.YOLO_TRACKER_TYPE):
-        boxes, track_ids, clses = [], [], []
-        results = self.model.track(frame, persist=persist, tracker=tracker, conf=conf, iou=iou, classes=class_idx_list)
-        # 过滤
+    def track(self, frame, class_idx_list=cfgs.YOLO_DEFAULT_LABEL, persist=False, min_size=cfgs.YOLO_MIN_SIZE,
+              tracker=cfgs.YOLO_TRACKER_TYPE):
+        boxes, track_ids, clss = [], [], []
+        results = self._model_track.track(frame, persist=persist, tracker=tracker, conf=0.2, iou=0.4,
+                                          classes=class_idx_list)
         if results[0].boxes.id is not None:
             _boxes = results[0].boxes.xyxy.cpu().tolist()
             _track_ids = results[0].boxes.id.int().cpu().tolist()
-            _clses = results[0].boxes.cls.int().cpu().tolist()
-            for box, track_id, cls in zip(_boxes, _track_ids, _clses):
-                if box[3] - box[1] > min_size and box[2] - box[0] > min_size:
-                    boxes.append(box)
-                    clses.append(cls)
-                    track_ids.append(track_id)
-        return boxes, track_ids, clses
+            _clss = results[0].boxes.cls.int().cpu().tolist()
+            for _box, _track_id, _cls in zip(_boxes, _track_ids, _clss):
+                if _box[3] - _box[1] > min_size and _box[2] - _box[0] > min_size:
+                    boxes.append(_box)
+                    track_ids.append(_track_id)
+                    clss.append(_cls)
+        return boxes, track_ids, clss
 
     def reset_track(self):
         self._model_track = YOLO(cfgs.YOLO_MODEL_PATH)

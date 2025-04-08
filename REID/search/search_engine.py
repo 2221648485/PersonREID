@@ -1,9 +1,12 @@
-import faiss
+import os
+import sys
+import pdb
+import json
 import numpy as np
-
+import faiss
 from REID.logger.log import get_logger
 
-log = get_logger(__name__)
+log_info = get_logger(__name__)
 
 
 class SearchEngine(object):
@@ -13,10 +16,10 @@ class SearchEngine(object):
             self._index = faiss.IndexFlatL2(dims)
             self._index.add(base_feat_lists)
             self._register_labels = base_idx_lists
-            log.info(
-                f"Faiss search engine has already loaded The dims is {dims}. Total num is {len(base_idx_lists)}")
+            log_info.info(
+                "Faiss search engine load succeed!!! The dims is {}. Total num is {}".format(dims, len(base_idx_lists)))
         else:
-            log.info(f"No feat register.Total num is {len(base_idx_lists)}")
+            log_info.info("No feat register.Total num is {}".format(len(base_idx_lists)))
 
     def search(self, query_feat, top_k=10):
         if len(self._register_labels) == 0:
@@ -27,5 +30,6 @@ class SearchEngine(object):
             return label_idx, dist_list
 
     def rerank(self):
-
+        ## Todo
         pass
+

@@ -1,33 +1,35 @@
+import cv2
 import numpy as np
-
+import onnxruntime as ort
+import torch
+import pdb
+import torchvision.transforms as T
+from PIL import Image
 import REID.config.model_cfgs as cfgs
 from REID.logger.log import get_logger
-import onnxruntime as ort
-import torchvision.transforms.v2 as v2
-import torch
-import cv2
-from PIL import Image
-from IPython import embed
-log = get_logger(__name__)
+
+log_info = get_logger(__name__)
 
 
 class ReIdExtract(object):
     def __init__(self, extract_class, onnx_model=cfgs.EXTRACTOR_PERSON, IN_SIZE=cfgs.REID_IN_SIZE,
                  providers=['CUDAExecutionProvider', 'CPUExecutionProvider']):
-        self.extract_class = extract_class
-        self.onnx_model = onnx_model
-        self.session = ort.InferenceSession(self.onnx_model, providers=providers)
+        self._extract_class = extract_class
+        self._onnx_model = onnx_model
+        # 使用onnx进行推理加快速度
+        self.session = ort.InferenceSession(self._onnx_model, providers=providers)
+        # Get the model inputs
         self.model_inputs = self.session.get_inputs()
+        # Store the shape of the input for later use
         input_shape = self.model_inputs[0].shape
         self.input_width = input_shape[2]
         self.input_height = input_shape[3]
-        self.transform = v2.Compose([
-            v2.Resize(IN_SIZE),
-            v2.ToImage(),
-            v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+        self.transform = T.Compose([
+            T.Resize(IN_SIZE),
+            T.ToTensor(),
+            T.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ])
-        log.info(f"{onnx_model} has already loaded, the shape is [{self.input_width}, {self.input_height}]")
+        log_info.info("{} model loaded!!! The shape is {}_{}.".format(onnx_model, self.input_width, self.input_height))
 
     def __call__(self, image_data, norm_feat=True):
         image_data = Image.fromarray(cv2.cvtColor(image_data, cv2.COLOR_BGR2RGB))
@@ -36,9 +38,11 @@ class ReIdExtract(object):
         outputs = self.session.run(None, {self.model_inputs[0].name: input_var.numpy()})
         features = outputs[0][0]
         if norm_feat:
-            features = features / (np.linalg.norm(features) + 1e-8)
+            features = features / np.linalg.norm(features)
         return features  # output image
 
-if __name__ == "__main__":
-    reid = ReIdExtract(cfgs.EXTRACTOR_PERSON)
-    embed()
+
+if __name__ == '__main__':
+    reid_detector = ReIdExtract("../models/reid.onnx", [256, 128], providers=['CPUExecutionProvider'])
+    img = cv2.imread("../demo.jpg")
+    reid_detector(img)
