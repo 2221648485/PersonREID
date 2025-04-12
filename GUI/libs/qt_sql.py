@@ -4,7 +4,7 @@ import REID.config.model_cfgs as cfgs
 
 log_info = get_logger(__name__)
 
-
+# 创建数据库
 def init_db(db_path, db_name):
     try:
         db = QSqlDatabase.addDatabase("QSQLITE")
@@ -16,7 +16,7 @@ def init_db(db_path, db_name):
             log_info.error(f"{db_path}_{db_name} Unable to open database: {error_msg}")
             return False
         query = QSqlQuery()
-        query.exec_(
+        query.exec(
             f"CREATE TABLE IF NOT EXISTS {db_name} (id integer primary key, name text, category varchar, box text, feat text, image varchar)")
         return True
     except Exception as e:
@@ -80,4 +80,4 @@ def _add_register(db_path, db_name, name, category, box, feat, image):
 
 
 if __name__ == "__main__":
-    init_db("reid.db", cfgs.DB_NAME)
+    init_db(cfgs.DB_PATH, cfgs.DB_NAME)

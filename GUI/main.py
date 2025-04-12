@@ -1,5 +1,6 @@
 import os
 import sys
+
 sys.path.append('../')
 import onnxruntime as ort
 from GUI.subpage.UiPageRegister import PageRegister
@@ -11,10 +12,12 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Signal, Qt
 
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+
 
 class MainWindow(QMainWindow, Ui_MainWindow, PageRegister, PageManager, PageProcess, UIFuncitons):
     main_process_thread = Signal()
+
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -27,10 +30,10 @@ class MainWindow(QMainWindow, Ui_MainWindow, PageRegister, PageManager, PageProc
         # multi_page connect
         self.model_box.currentTextChanged.connect(self.change_model)
         self.device_box.currentTextChanged.connect(self.change_device)
-        self.sample_ft_spinbox.valueChanged.connect(lambda x:self.change_val(x, 'sample_ft_spinbox')) 
-        self.sample_ft_slider.valueChanged.connect(lambda x:self.change_val(x, 'sample_ft_slider')) 
-        self.thresh_spinbox.valueChanged.connect(lambda x:self.change_val(x, 'thresh_spinbox')) 
-        self.thresh_slider.valueChanged.connect(lambda x:self.change_val(x, 'thresh_slider')) 
+        self.sample_ft_spinbox.valueChanged.connect(lambda x: self.change_val(x, 'sample_ft_spinbox'))
+        self.sample_ft_slider.valueChanged.connect(lambda x: self.change_val(x, 'sample_ft_slider'))
+        self.thresh_spinbox.valueChanged.connect(lambda x: self.change_val(x, 'thresh_spinbox'))
+        self.thresh_slider.valueChanged.connect(lambda x: self.change_val(x, 'thresh_slider'))
 
         # stack weiget change
         self.btn_reg.clicked.connect(self.buttonClick)
@@ -38,17 +41,16 @@ class MainWindow(QMainWindow, Ui_MainWindow, PageRegister, PageManager, PageProc
         self.btn_mag.clicked.connect(self.buttonClick)
         self.btn_exit.clicked.connect(self.buttonClick)
 
-        self.ToggleBotton.clicked.connect(lambda: UIFuncitons.toggleMenu(self, True)) 
-        self.settings_button.clicked.connect(lambda: UIFuncitons.settingBox(self, True)) 
+        self.ToggleBotton.clicked.connect(lambda: UIFuncitons.toggleMenu(self, True))
+        self.settings_button.clicked.connect(lambda: UIFuncitons.settingBox(self, True))
 
     def change_model(self):
         select_track_model = self.model_box.currentText()
         if "botsort" == select_track_model.lower():
             self.reid_pipeline.track_method = "botsort.yaml"
-        else:   
+        else:
             self.reid_pipeline.track_method = "bytetrack.yaml"
-    
-    
+
     def mousePressEvent(self, event):
         p = event.globalPosition()
         globalPos = p.toPoint()
@@ -69,22 +71,21 @@ class MainWindow(QMainWindow, Ui_MainWindow, PageRegister, PageManager, PageProc
 
     def change_val(self, x, flag):
         if flag == 'sample_ft_spinbox':
-            self.sample_ft_slider.setValue(int(x))    # The box value changes, changing the slider
+            self.sample_ft_slider.setValue(int(x))  # The box value changes, changing the slider
             print("The video sample ft is set to {}".format(x))
             self.proc_class.skip_frames = int(x)
         elif flag == 'sample_ft_slider':
-            self.sample_ft_spinbox.setValue(x)        # The slider value changes, changing the box
+            self.sample_ft_spinbox.setValue(x)  # The slider value changes, changing the box
             print("The video sample ft is set to {}".format(x))
             self.proc_class.skip_frames = int(x)
         elif flag == 'thresh_spinbox':
-            self.thresh_slider.setValue(int(x*100))
+            self.thresh_slider.setValue(int(x * 100))
             print("The match threshold is set to {}".format(x))
             self.proc_class.match_thresh = float(x)
         elif flag == 'thresh_slider':
-            self.thresh_spinbox.setValue(x/100)
-            print("The match threshold is set to {}".format(x/100))
-            self.proc_class.match_thresh = float(x/100)
-
+            self.thresh_spinbox.setValue(x / 100)
+            print("The match threshold is set to {}".format(x / 100))
+            self.proc_class.match_thresh = float(x / 100)
 
     def buttonClick(self):
         btn = self.sender()
@@ -102,7 +103,7 @@ class MainWindow(QMainWindow, Ui_MainWindow, PageRegister, PageManager, PageProc
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    icon = QIcon("./ui/images/icons_v2/our_id.jpg")
+    icon = QIcon("./ui/images/icons_v2/logo.png")
     app.setWindowIcon(icon)
     home = MainWindow()
     home.setWindowFlag(Qt.FramelessWindowHint)

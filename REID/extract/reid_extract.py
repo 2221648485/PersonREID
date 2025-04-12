@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import onnxruntime as ort
 import torch
-import pdb
 import torchvision.transforms as T
 from PIL import Image
 import REID.config.model_cfgs as cfgs
@@ -18,9 +17,9 @@ class ReIdExtract(object):
         self._onnx_model = onnx_model
         # 使用onnx进行推理加快速度
         self.session = ort.InferenceSession(self._onnx_model, providers=providers)
-        # Get the model inputs
+        # 获取输入
         self.model_inputs = self.session.get_inputs()
-        # Store the shape of the input for later use
+        # 存储输入形状
         input_shape = self.model_inputs[0].shape
         self.input_width = input_shape[2]
         self.input_height = input_shape[3]
@@ -31,6 +30,7 @@ class ReIdExtract(object):
         ])
         log_info.info("{} model loaded!!! The shape is {}_{}.".format(onnx_model, self.input_width, self.input_height))
 
+    # 推理
     def __call__(self, image_data, norm_feat=True):
         image_data = Image.fromarray(cv2.cvtColor(image_data, cv2.COLOR_BGR2RGB))
         img = self.transform(image_data)
@@ -43,6 +43,6 @@ class ReIdExtract(object):
 
 
 if __name__ == '__main__':
-    reid_detector = ReIdExtract("../models/reid.onnx", [256, 128], providers=['CPUExecutionProvider'])
+    reid_detector = ReIdExtract("../models/reid_person_0.737.onnx", [256, 128], providers=['CPUExecutionProvider'])
     img = cv2.imread("../demo.jpg")
     reid_detector(img)

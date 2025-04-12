@@ -1,7 +1,4 @@
-import sys
-import os
-import numpy as np
-from collections import defaultdict
+
 from ultralytics import YOLO
 import REID.config.model_cfgs as cfgs
 from REID.logger.log import get_logger
@@ -14,13 +11,15 @@ yolo_idx_names = cfgs.YOLO_LABELS
 # 自定义yolo类
 class YoloDetect(object):
     def __init__(self, model_path=cfgs.YOLO_MODEL_PATH):
-        self._model = YOLO(model_path)
-        self._model_track = YOLO(model_path)
+        self._model = YOLO(model_path, task='detect')
+        self._model_track = YOLO(model_path, task='detect')
         log_info.info('{} model load succeed!!!'.format(model_path))
 
+    # 对图像进行预测并过滤
     def detect(self, img, class_idx_list=cfgs.YOLO_DEFAULT_LABEL, min_size=cfgs.YOLO_MIN_SIZE):
         boxes, clss = [], []
         results = self._model.predict(img, conf=0.2, iou=0.4, classes=class_idx_list)
+        # 过滤
         if results[0].boxes.xyxy is not None:
             _boxes = results[0].boxes.xyxy.cpu().tolist()
             _clss = results[0].boxes.cls.int().cpu().tolist()
@@ -30,6 +29,7 @@ class YoloDetect(object):
                     clss.append(_cls)
         return boxes, clss
 
+    # 对视频进行跟踪并过滤
     def track(self, frame, class_idx_list=cfgs.YOLO_DEFAULT_LABEL, persist=False, min_size=cfgs.YOLO_MIN_SIZE,
               tracker=cfgs.YOLO_TRACKER_TYPE):
         boxes, track_ids, clss = [], [], []
@@ -46,5 +46,6 @@ class YoloDetect(object):
                     clss.append(_cls)
         return boxes, track_ids, clss
 
+     # 重置跟踪器
     def reset_track(self):
-        self._model_track = YOLO(cfgs.YOLO_MODEL_PATH)
+        self._model_track = YOLO(cfgs.YOLO_MODEL_PATH, task='detect')

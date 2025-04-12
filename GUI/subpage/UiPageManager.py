@@ -1,29 +1,23 @@
-import os
-import sys
-from PySide6.QtCore import Qt, QModelIndex
+from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import Qt
+from PySide6.QtSql import QSqlRelationalTableModel, QSqlTableModel
 from PySide6.QtWidgets import (
-                                QApplication,
-                                QAbstractItemView,
-                                QDataWidgetMapper,
-                                QTableView,
-                                QMessageBox,
-                                QHeaderView,
-                                QHBoxLayout, 
-                                QPushButton, 
-                                QVBoxLayout, 
-                                QWidget, 
-                            )
-from PySide6.QtGui import QKeySequence
-from PySide6.QtSql import QSqlRelation, QSqlRelationalTableModel, QSqlTableModel
-from PySide6.QtCore import Qt, Slot
+    QAbstractItemView,
+    QDataWidgetMapper,
+    QTableView,
+    QMessageBox,
+    QHeaderView,
+)
+import REID.config.model_cfgs as cfgs
 from GUI.libs import img_show_and_encoder
 from GUI.libs import qt_sql
-import REID.config.model_cfgs as cfgs
 
 
 class PageManager:
     def set_mag_page(self):
         qt_sql.init_db(cfgs.DB_PATH, cfgs.DB_NAME)
+        # 设置表格
         self.sql_model = QSqlRelationalTableModel(self.all_db_showTb)
         self.sql_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.sql_model.setTable(cfgs.DB_NAME)
@@ -36,6 +30,7 @@ class PageManager:
         
         if not self.sql_model.select():
             print(self.sql_model.lastError())
+        # 将表格与ui绑定
         self.all_db_showTb.setModel(self.sql_model)
         self.all_db_showTb.setColumnHidden(self.sql_model.fieldIndex("image"), True)
         self.all_db_showTb.setColumnHidden(self.sql_model.fieldIndex("feat"), True)
@@ -46,16 +41,17 @@ class PageManager:
         self.all_db_showTb.clicked.connect(self.show_img_details)
         self.all_db_showTb.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.mag_delete_button.clicked.connect(self.deleteButtonClicked)
-        
+
+        # 将表格数据与文本框绑定
         self.sql_mapper = QDataWidgetMapper(self)
         self.sql_mapper.setModel(self.sql_model)
         self.sql_mapper.addMapping(self.mag_id_nameEdit, self.sql_model.fieldIndex("name"))
         self.sql_mapper.addMapping(self.mag_del_edit, self.sql_model.fieldIndex("name"))
 
+        #
         selection_model = self.all_db_showTb.selectionModel()
         selection_model.currentRowChanged.connect(self.sql_mapper.setCurrentModelIndex)
 
-        #self.all_db_showTb.setCurrentIndex(self.sql_model.index(0, 0))
         self.mag_nameedit_button.clicked.connect(self.name_edit_changed)
         self.mag_total_reg_num.display(self.all_db_showTb.model().rowCount())
 
