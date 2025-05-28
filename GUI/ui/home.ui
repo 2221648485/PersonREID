@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>940</width>
-    <height>643</height>
+    <height>667</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -2765,7 +2765,7 @@ color: rgba(0, 0, 0, 199);
 }</string>
                         </property>
                         <property name="text">
-                         <string>      Device</string>
+                         <string>   Device</string>
                         </property>
                         <property name="icon">
                          <iconset resource="resources.qrc">
@@ -2895,52 +2895,56 @@ border-radius:12px;
                       <enum>QFrame::Shadow::Raised</enum>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_7">
-                      <item row="0" column="0" colspan="2">
-                       <widget class="QPushButton" name="pushButton_7">
+                      <item row="1" column="1">
+                       <widget class="QSlider" name="sample_ft_slider">
                         <property name="minimumSize">
                          <size>
                           <width>0</width>
-                          <height>30</height>
+                          <height>20</height>
                          </size>
                         </property>
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
-                          <height>30</height>
+                          <height>20</height>
                          </size>
                         </property>
                         <property name="font">
                          <font>
                           <family>Arial</family>
-                          <pointsize>14</pointsize>
-                          <bold>true</bold>
                          </font>
                         </property>
                         <property name="styleSheet">
-                         <string notr="true">QPushButton{
-background-repeat: no-repeat;
-background-position: left center;
+                         <string notr="true">QSlider::groove:horizontal {
 border: none;
-border-left: 10px solid transparent;
+height: 10px;
+background-color: rgba(255,255,255,90);
+border-radius: 5px;
+}
 
-text-align: left;
-padding-left: 30px;
-padding-bottom: 2px;
-color: rgba(0, 0, 0, 199);
+QSlider::handle:horizontal {
+width: 10px;
+margin: -1px 0px -1px 0px;
+border-radius: 3px;
+background-color: white;
+}
+
+QSlider::sub-page:horizontal {
+background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #59969b, stop:1 #04e7fa);
+border-radius: 5px;
 }</string>
                         </property>
-                        <property name="text">
-                         <string>     SampleFt</string>
+                        <property name="minimum">
+                         <number>1</number>
                         </property>
-                        <property name="icon">
-                         <iconset resource="resources.qrc">
-                          <normaloff>:/icons_v2/images/icons_v2/score.png</normaloff>:/icons_v2/images/icons_v2/score.png</iconset>
+                        <property name="maximum">
+                         <number>150</number>
                         </property>
-                        <property name="iconSize">
-                         <size>
-                          <width>20</width>
-                          <height>20</height>
-                         </size>
+                        <property name="value">
+                         <number>6</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
                         </property>
                        </widget>
                       </item>
@@ -3005,56 +3009,52 @@ margin-bottom: 1px;
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="1">
-                       <widget class="QSlider" name="sample_ft_slider">
+                      <item row="0" column="0" colspan="2">
+                       <widget class="QPushButton" name="pushButton_7">
                         <property name="minimumSize">
                          <size>
                           <width>0</width>
-                          <height>20</height>
+                          <height>30</height>
                          </size>
                         </property>
                         <property name="maximumSize">
                          <size>
                           <width>16777215</width>
-                          <height>20</height>
+                          <height>30</height>
                          </size>
                         </property>
                         <property name="font">
                          <font>
                           <family>Arial</family>
+                          <pointsize>14</pointsize>
+                          <bold>true</bold>
                          </font>
                         </property>
                         <property name="styleSheet">
-                         <string notr="true">QSlider::groove:horizontal {
+                         <string notr="true">QPushButton{
+background-repeat: no-repeat;
+background-position: left center;
 border: none;
-height: 10px;
-background-color: rgba(255,255,255,90);
-border-radius: 5px;
-}
+border-left: 10px solid transparent;
 
-QSlider::handle:horizontal {
-width: 10px;
-margin: -1px 0px -1px 0px;
-border-radius: 3px;
-background-color: white;
-}
-
-QSlider::sub-page:horizontal {
-background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #59969b, stop:1 #04e7fa);
-border-radius: 5px;
+text-align: left;
+padding-left: 30px;
+padding-bottom: 2px;
+color: rgba(0, 0, 0, 199);
 }</string>
                         </property>
-                        <property name="minimum">
-                         <number>1</number>
+                        <property name="text">
+                         <string>  SampleFt</string>
                         </property>
-                        <property name="maximum">
-                         <number>150</number>
+                        <property name="icon">
+                         <iconset resource="resources.qrc">
+                          <normaloff>:/icons_v2/images/icons_v2/score.png</normaloff>:/icons_v2/images/icons_v2/score.png</iconset>
                         </property>
-                        <property name="value">
-                         <number>6</number>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
+                        <property name="iconSize">
+                         <size>
+                          <width>20</width>
+                          <height>20</height>
+                         </size>
                         </property>
                        </widget>
                       </item>
@@ -3125,7 +3125,7 @@ color: rgba(0, 0, 0, 199);
 }</string>
                         </property>
                         <property name="text">
-                         <string>Track Method</string>
+                         <string>  Method</string>
                         </property>
                         <property name="icon">
                          <iconset resource="resources.qrc">
@@ -3256,50 +3256,6 @@ border-radius:12px;</string>
                       <enum>QFrame::Shadow::Raised</enum>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_8">
-                      <item row="1" column="1">
-                       <widget class="QSlider" name="thresh_slider">
-                        <property name="font">
-                         <font>
-                          <family>Arial</family>
-                         </font>
-                        </property>
-                        <property name="styleSheet">
-                         <string notr="true">QSlider::groove:horizontal {
-border: none;
-height: 10px;
-background-color: rgba(255,255,255,90);
-border-radius: 5px;
-}
-
-QSlider::handle:horizontal {
-width: 10px;
-margin: -1px 0px -1px 0px;
-border-radius: 3px;
-background-color: white;
-}
-
-QSlider::sub-page:horizontal {
-background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #59969b, stop:1 #04e7fa);
-border-radius: 5px;
-}</string>
-                        </property>
-                        <property name="minimum">
-                         <number>10</number>
-                        </property>
-                        <property name="maximum">
-                         <number>50</number>
-                        </property>
-                        <property name="singleStep">
-                         <number>1</number>
-                        </property>
-                        <property name="value">
-                         <number>20</number>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="1" column="0">
                        <widget class="QDoubleSpinBox" name="thresh_spinbox">
                         <property name="font">
@@ -3351,6 +3307,50 @@ margin-bottom: 1px;
                         </property>
                        </widget>
                       </item>
+                      <item row="1" column="1">
+                       <widget class="QSlider" name="thresh_slider">
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                         </font>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QSlider::groove:horizontal {
+border: none;
+height: 10px;
+background-color: rgba(255,255,255,90);
+border-radius: 5px;
+}
+
+QSlider::handle:horizontal {
+width: 10px;
+margin: -1px 0px -1px 0px;
+border-radius: 3px;
+background-color: white;
+}
+
+QSlider::sub-page:horizontal {
+background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #59969b, stop:1 #04e7fa);
+border-radius: 5px;
+}</string>
+                        </property>
+                        <property name="minimum">
+                         <number>10</number>
+                        </property>
+                        <property name="maximum">
+                         <number>50</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>20</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
                       <item row="0" column="0" colspan="2">
                        <widget class="QPushButton" name="pushButton">
                         <property name="font">
@@ -3375,7 +3375,7 @@ color: rgba(0, 0, 0, 199);
 }</string>
                         </property>
                         <property name="text">
-                         <string>  Match Thresh</string>
+                         <string>  Thresh</string>
                         </property>
                         <property name="icon">
                          <iconset resource="resources.qrc">

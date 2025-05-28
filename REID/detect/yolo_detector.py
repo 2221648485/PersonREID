@@ -13,7 +13,7 @@ class YoloDetect(object):
     def __init__(self, model_path=cfgs.YOLO_MODEL_PATH):
         self._model = YOLO(model_path, task='detect')
         self._model_track = YOLO(model_path, task='detect')
-        log_info.info('{} model load succeed!!!'.format(model_path))
+        log_info.info(f'{model_path} model load succeed!!!')
 
     # 对图像进行预测并过滤
     def detect(self, img, class_idx_list=cfgs.YOLO_DEFAULT_LABEL, min_size=cfgs.YOLO_MIN_SIZE):

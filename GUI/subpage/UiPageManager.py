@@ -19,6 +19,7 @@ class PageManager:
         qt_sql.init_db(cfgs.DB_PATH, cfgs.DB_NAME)
         # 设置表格
         self.sql_model = QSqlRelationalTableModel(self.all_db_showTb)
+        # 手动提交修改
         self.sql_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.sql_model.setTable(cfgs.DB_NAME)
         self.sql_model.setHeaderData(self.sql_model.fieldIndex("id"), Qt.Horizontal, self.tr("ID"))
@@ -38,6 +39,7 @@ class PageManager:
         self.all_db_showTb.setSelectionBehavior(QTableView.SelectRows)
         self.all_db_showTb.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.all_db_showTb.resizeColumnsToContents()
+        # 图片预览
         self.all_db_showTb.clicked.connect(self.show_img_details)
         self.all_db_showTb.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.mag_delete_button.clicked.connect(self.deleteButtonClicked)
@@ -69,8 +71,8 @@ class PageManager:
     def deleteButtonClicked(self):
         selected_row = self.all_db_showTb.currentIndex().row()
         if selected_row >= 0:
-            # double check QMessageBox
-            reply = QMessageBox.question(self, 'Confirmation', 'Are you sure you want to delete this row?',
+            # 确认删除
+            reply = QMessageBox.question(self, 'Confirmation', '是否确认删除此行？',
                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
             if reply == QMessageBox.StandardButton.Yes:
                 if not self.sql_model.removeRow(selected_row):

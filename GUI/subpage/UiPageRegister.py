@@ -24,6 +24,8 @@ class PageRegister:
         self.reg_processd_box.currentTextChanged.connect(self.reg_choose_target_func)
         self.reg_to_makesure_reg.clicked.connect(self.register_to_sql_func)
 
+
+    # 注册到数据库
     def register_to_sql_func(self):
         if self.reg_crop_img is not None and self.reg_id_lineEdit.text() != "":
             name = self.reg_id_lineEdit.text()
@@ -45,6 +47,7 @@ class PageRegister:
                 self.mag_total_reg_num.display(self.all_db_showTb.model().rowCount())
                 self.proc_class.reload_faiss()
 
+    # 选择注册目标
     def reg_choose_target_func(self):
         if self.reg_source_img_url is not None:
             _reg_choose_label = self.reg_processd_box.currentText()
@@ -54,6 +57,7 @@ class PageRegister:
             self.reg_crop_img = crop_img.copy()
             self.reg_box = [int(bb[0]), int(bb[1]), int(bb[2]), int(bb[3])]
 
+    # 处理图片
     def reg_process_file_func(self):
         if self.reg_source_img_url is not None:
             _image = cv2.imread(self.reg_source_img_url)
@@ -73,6 +77,7 @@ class PageRegister:
             self.reg_processd_box.clear()
             self.reg_processd_box.addItems(self.reg_label_list)
 
+    # 打开文件
     def reg_open_file_func(self):
         config_file = 'config/reg_fold.json'
         if os.path.exists(config_file):
@@ -91,6 +96,5 @@ class PageRegister:
             config_json = json.dumps(config, ensure_ascii=False, indent=2)
             with open(config_file, 'w', encoding='utf-8') as f:
                 f.write(config_json)
-            # TODO 
             img_show_and_encoder.show_image(cv2.imread(name), self.reg_show_main_img)
             self.reg_file_lineEdit.setText(name)

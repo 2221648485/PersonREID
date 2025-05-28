@@ -1,5 +1,4 @@
 import base64
-
 import cv2
 import traceback
 import pdb
@@ -22,7 +21,7 @@ def show_image(img_src, label):
         ih, iw, _ = img_src.shape
         w = label.geometry().width()
         h = label.geometry().height()
-        # keep the original data ratio
+        # 缩放
         if iw / w > ih / h:
             scal = w / iw
             nw = w

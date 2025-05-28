@@ -43,6 +43,6 @@ class ReIdExtract(object):
 
 
 if __name__ == '__main__':
-    reid_detector = ReIdExtract("../models/reid_person_0.737.onnx", [256, 128], providers=['CPUExecutionProvider'])
+    reid_detector = ReIdExtract([0], "D:\\py\\PersonREID\\models\\reid_person_0.737.onnx")
     img = cv2.imread("../demo.jpg")
     reid_detector(img)

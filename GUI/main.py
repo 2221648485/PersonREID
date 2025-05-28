@@ -22,14 +22,16 @@ class MainWindow(QMainWindow, Ui_MainWindow, PageRegister, PageManager, PageProc
         super(MainWindow, self).__init__()
         self.setupUi(self)
         self.reid_pipeline = None
+        # 初始化各功能页面
         PageManager.set_mag_page(self)
         PageProcess.set_proc_page(self)
         PageRegister.set_reg_page(self)
         UIFuncitons.uiDefinitions(self)
 
-        # multi_page connect
+        # 模型/设备选择框的事件绑定
         self.model_box.currentTextChanged.connect(self.change_model)
         self.device_box.currentTextChanged.connect(self.change_device)
+        # 参数控件的双向绑定
         self.sample_ft_spinbox.valueChanged.connect(lambda x: self.change_val(x, 'sample_ft_spinbox'))
         self.sample_ft_slider.valueChanged.connect(lambda x: self.change_val(x, 'sample_ft_slider'))
         self.thresh_spinbox.valueChanged.connect(lambda x: self.change_val(x, 'thresh_spinbox'))

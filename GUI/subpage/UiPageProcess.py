@@ -30,7 +30,7 @@ class ProcessThread(QObject):
     show_target_img = Signal(np.ndarray)
     table_info_list = Signal(list)
 
-    def __init__(self, base_feat_lists, base_idx_lists, dims=1024, target_class="person", device_info="cpu"):
+    def __init__(self, base_feat_lists, base_idx_lists, dims=1024, target_class="person", device_info="gpu"):
         QObject.__init__(self)
         self.reid_pipeline = ReidPipeline(base_feat_lists, base_idx_lists, dims=dims, target_class=target_class,
                                           device_info=device_info)
@@ -49,9 +49,11 @@ class ProcessThread(QObject):
         self.reid_pipeline.reload_search_engine(base_feat_lists, base_idx_lists, dims)
 
     def proc_start_run_dir_type(self):
+        # 初始化目录处理索引和文件列表
         proc_dir_index = 0
         start_img_list = os.listdir(self.proc_source_url)
         start_img_path_list = []
+        # 过滤有效媒体文件（支持图片和视频格式）
         for e_img in start_img_list:
             if e_img.lower().endswith(".jpg") or e_img.lower().endswith(".png") or e_img.lower().endswith(".jpeg") or \
                     e_img.lower().endswith(".mp4") or e_img.lower().endswith(".mkv") or e_img.lower().endswith(
@@ -66,6 +68,7 @@ class ProcessThread(QObject):
             if self.continue_dtc:
                 if len(start_img_path_list) < proc_dir_index + 1:
                     break
+                # 图片文件处理分支
                 target_file_path = start_img_path_list[proc_dir_index]
                 if target_file_path.endswith(".jpg") or target_file_path.endswith(".png") or target_file_path.endswith(
                         ".jpeg"):
@@ -73,6 +76,7 @@ class ProcessThread(QObject):
                     proc_dir_index += 1
                     frame_count = 1
                     _inter_type = "image"
+                # 视频文件处理分支
                 elif target_file_path.endswith(".mp4") or target_file_path.endswith(
                         ".mkv") or target_file_path.endswith(".avi") or target_file_path.endswith(".flv"):
                     _inter_type = "video"
@@ -98,15 +102,20 @@ class ProcessThread(QObject):
                     proc_dir_index += 1
                     continue
                 _image = proc_img.copy()
+                # 图片处理分支
                 if _inter_type == "image":
+                    # 执行目标检测
                     boxes, track_ids, labels = self.reid_pipeline.detect(proc_img,
                                                                          class_idx_list=self.reid_pipeline._target_class_idx_list,
                                                                          format=_inter_type)
+                    # 绘制检测框
                     self.draw_box(_image, boxes, labels)
+                # 视频处理分支
                 else:
-                    # sample frame
+                    # 跳帧处理
                     if frame_count % self.skip_frames != 0:
                         continue
+                    # 带跟踪的检测
                     boxes, track_ids, labels = self.reid_pipeline.detect(proc_img,
                                                                          class_idx_list=self.reid_pipeline._target_class_idx_list,
                                                                          format=_inter_type, is_track=self.is_track)
@@ -115,6 +124,7 @@ class ProcessThread(QObject):
                     had_search_trackid_list = []
                     if self.is_track and track_ids is not None:
                         self.draw_track(_image, boxes, track_ids, labels, track_history)
+                        # 跟踪ID管理
                         for bbox, track_id in zip(boxes, track_ids):
                             if track_id not in self.had_track_id_dict:
                                 self.had_track_id_dict[track_id] = [bbox, None]
@@ -124,24 +134,30 @@ class ProcessThread(QObject):
                                 if self.had_track_id_dict[track_id][1] is not None:
                                     had_search_label = self.had_track_id_dict[track_id][1]
                                     had_search_trackid_list.append([bbox, had_search_label])
+                        # 绘制历史匹配结果
                         _image = self.draw_match(_image, [row[0] for row in had_search_trackid_list],
                                                  [row[1] for row in had_search_trackid_list])
+                        # 过滤后的检测框
                         boxes = filter_bbox_list
                     else:
                         self.draw_box(_image, boxes, labels)
+                # 特征搜索与匹配
                 search_labels_list, search_dist_list, target_box_list, before_sort_list = self.reid_pipeline.search(
                     proc_img, boxes, self.match_thresh)
                 if _inter_type == 'video':
                     happend_time = round((frame_count + 1) / _fps, 3)
+                    # 更新跟踪ID的匹配结果
                     if self.is_track and track_ids is not None:
                         for _idx, _e_sort_box in enumerate(boxes):
                             if before_sort_list[_idx] != "unknown":
+                                # 更新跟踪ID字典：格式 {track_id: [bbox, match_result]}
                                 self.had_track_id_dict[filter_trackid_list[_idx]][1] = before_sort_list[_idx]
                         search_labels_list.extend([row[1] for row in had_search_trackid_list])
                         target_box_list.extend([row[0] for row in had_search_trackid_list])
                         search_dist_list.extend(["None"] * len(had_search_trackid_list))
                 else:
                     happend_time = 0.0
+                # 结果展示分支
                 if len(target_box_list) > 0:
                     _image = self.draw_match(_image, target_box_list, search_labels_list)
                     for _idx, _e_dist in enumerate(search_dist_list):
@@ -273,12 +289,15 @@ class ProcessThread(QObject):
                                 search_dist_list[_idx][0], "{}:{}".format("命中", search_labels_list[_idx]),
                                 "[{}]".format(','.join(map(str, map(int, target_box_list[_idx][:4]))))]
                         self.table_info_list.emit(rows)
+                        # 目标区域裁剪与显示
                         bb = target_box_list[_idx]
                         crop_img = proc_img[int(bb[1]):int(bb[3]), int(bb[0]):int(bb[2]), :]
+                        # 更新右侧信息面板
                         self.show_target_img.emit(crop_img)
                         self.show_match_dist.emit(str(search_dist_list[_idx][0]))
                         self.show_match_id.emit(search_labels_list[_idx])
                         self.show_match_status.emit("命中")
+                # 无匹配结果处理
                 else:
                     if self.is_show_no_match_item:
                         rows = [self.proc_source_url, self.reid_pipeline._target_class, frame_count, happend_time,
@@ -323,10 +342,12 @@ class PageProcess:
     video_writer = None
 
     def set_proc_page(self):
+        # 初始化摄像头列表和特征数据库
         self.available_cameras = self.find_available_cameras()
         base_feat_lists, base_idx_lists = qt_sql.load_sql_feat_info(cfgs.DB_PATH, cfgs.DB_NAME)
+        # 创建处理线程实例
         self.proc_class = ProcessThread(base_feat_lists, base_idx_lists, dims=1280, target_class="person",
-                                        device_info="cpu")
+                                        device_info="gpu")
         self.reid_pipeline = self.proc_class.reid_pipeline
         self.process_file_button.clicked.connect(self.proc_open_file_func)
         self.init_process_camera()
@@ -337,6 +358,7 @@ class PageProcess:
         self.process_table_show.setModel(self._process_info_model)
         # self.process_table_show.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
+        # 信号-槽连接：处理线程 → 界面组件
         self.proc_class.debug_msg.connect(lambda x: self.show_status(x))
         self.proc_class.show_img.connect(lambda x: self.show_image(x, self.det_pano_img))
         self.proc_class.show_target_img.connect(lambda x: self.show_image(x, self.match_show_img))
@@ -346,14 +368,15 @@ class PageProcess:
         self.proc_class.progress_bar.connect(lambda x: self.show_progress_bar(x))
         self.proc_class.table_info_list.connect(lambda x: self.show_table_proc_stage(x))
 
+        # 创建并配置工作线程
         self.process_thread = QThread()
         self.main_process_thread.connect(self.proc_class.proc_start_run_func)
         self.proc_class.moveToThread(self.process_thread)
 
+        # 按钮事件绑定
         self.proc_run_button.clicked.connect(self.proc_run_or_continue)
         self.proc_stop_button.clicked.connect(self.proc_stop)
 
-        ## save checkout choice
         self.istrack_checkbox.toggled.connect(self.istrack_checkbox_setting)
         self.save_media_checkbox.toggled.connect(self.save_media_checkbox_setting)
         self.save_csv_checkbox.toggled.connect(self.save_csv_checkbox_setting)
@@ -551,6 +574,9 @@ class PageProcess:
             os.makedirs(folder_path)
         with open(file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
+            header = [self._process_info_model.horizontalHeaderItem(i).text()
+                      for i in range(self._process_info_model.columnCount())]
+            writer.writerow(header)  # 写入表头
             for row in range(self._process_info_model.rowCount()):
                 row_data = []
                 for column in range(self._process_info_model.columnCount()):
